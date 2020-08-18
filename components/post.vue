@@ -34,10 +34,10 @@
                     :disabled="moderate == true"
                     v-if="isonepost == false" class="button is-warning is-fullwidth">Moderar</button>
                     <button
-                    @click="eliminarymoderar(id)"
+                    @click="eliminarymoderar(id, 'moderaryban')"
                     :disabled="moderate == true"
                     v-if="isonepost == false" class="button is-danger is-fullwidth">Moderar post y eliminar usuario</button>
-                    <button
+                    <button    
                     :disabled="moderate == true" 
                     v-if="isonepost == false" class="button is-primary is-fullwidth">Quitar reporte</button>
                 <div id="footer">
@@ -75,6 +75,7 @@
                     </article>
                     <button
                     :disabled="moderate == true" 
+                    @click="eliminarymoderar(reportante.id, 'banreportante')"
                     class="button is-warning is-fullwidth">Moderar usuario</button>
                 </div>
             </div>
@@ -112,19 +113,47 @@
                     alert(error.response.data.message)
                 })
             },
-            async eliminarymoderar(id){
+            async eliminarymoderar(id, type){
+                this.moderate = true
                 const token = await localStorage.getItem('user-token')
-                await this.$axios.delete('api/v2/panel/deleteuser/'+id
-                ,{headers: {Authorization: `Bearer ${token}`}, timeout:60000})
-                .then(response=>{
+                switch(type){
+                    case 'moderaryban':
+                        await this.$axios.post('api/v2/panel/banuser/'+id
+                        ,{},{headers: {Authorization: `Bearer ${token}`}, timeout:60000})
+                        .then(response=>{
+                            alert(response.data.data)
+                            this.$router.push('/home')
+                        }).catch(error =>{
+                            alert(error.response.data.message)
+                        })
+                        await this.moderar()
+                    break    
+                    case 'banreportante':
+                        await this.$axios.post('api/v2/panel/banuser/'+id
+                        ,{},{headers: {Authorization: `Bearer ${token}`}, timeout:60000})
+                        .then(response=>{
+                            alert(response.data.data)
+                            this.$router.push('/home')
+                        }).catch(error =>{
+                            alert(error.response.data.message)
+                        })
+                }
+                this.moderate = false
+            },
+            async eliminarpost(){
+                this.moderate == false
+                const token = await localStorage.getItem('user-token')
+                this.$axios.delete('api/v2/panel/deletereport'+ this.$route.params.id,
+                {headers: {Authorization: `Bearer ${token}`}, timeout:60000})
+                .then(response =>{
+                    this.moderate = false
                     alert(response.data.data)
                     this.$router.push('/home')
                 }).catch(error =>{
+                    this.moderate = false
                     alert(error.response.data.message)
                 })
-
             }
-
         }
     }
 </script>

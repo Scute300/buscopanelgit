@@ -76,7 +76,7 @@ moment.tz.setDefault('America/Mexico_City')
             this.interval = setInterval( async() => {
             await this.date()
             await this.getr('reports')
-            }, 60000)
+            }, 900000)
         },
         methods:{
             
